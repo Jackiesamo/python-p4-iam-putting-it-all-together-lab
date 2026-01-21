@@ -32,9 +32,15 @@ class Login(Resource):
     def post(self):
         data = request.get_json()
 
-        user = User.query.filter_by(username=data["username"]).first()
+        username = data.get("username")
+        password = data.get("password")
 
-        if user and user.authenticate(data["password"]):
+        if not username or not password:
+            return {"error": "Invalid username or password"}, 401
+
+        user = User.query.filter_by(username=username).first()
+
+        if user and user.authenticate(password):
             session["user_id"] = user.id
             return user.to_dict(), 200
 
